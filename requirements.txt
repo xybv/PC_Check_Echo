@@ -1,0 +1,6 @@
+"requests",
+"psutil",
+"pypiwin32",
+"pycryptodome",
+"win32api",
+"win32process"
