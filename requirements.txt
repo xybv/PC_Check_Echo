@@ -1,6 +1,4 @@
 requests
 psutil
-pypiwin32
+pywin32
 pycryptodome
-win32api
-win32process
