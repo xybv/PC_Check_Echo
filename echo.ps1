@@ -74,6 +74,6 @@ Start-Sleep 1
 
 Write-Host ""
 TypeLine "Closing..."
-Start-Sleep 2
+Start-Sleep 1
 
 Stop-Process -Id $PID -Force
