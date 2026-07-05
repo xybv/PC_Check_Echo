@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Continue"
 
-# --- fullscreen feel ---
+
 [Console]::Clear()
 
 function TypeLine($text, $speed = 40) {
