@@ -13,13 +13,13 @@ Write-Host "[+] Downloading files..."
 Invoke-WebRequest "$baseUrl/echo.py" -OutFile $pyFile
 Invoke-WebRequest "$baseUrl/requirements.txt" -OutFile $reqFile
 
-Write-Host "[+] Finding Python..."
+Write-Host "[+] Checking Python..."
 
 $python = Get-Command python -ErrorAction SilentlyContinue
 if (-not $python) { $python = Get-Command py -ErrorAction SilentlyContinue }
 
 if (-not $python) {
-    Write-Host "[-] Python not found (install it first)" -ForegroundColor Red
+    Write-Host "[-] Python not found" -ForegroundColor Red
     pause
     exit
 }
@@ -30,10 +30,17 @@ Write-Host "[+] Installing requirements..."
 & $python.Source -m pip install --upgrade pip
 & $python.Source -m pip install -r $reqFile
 
-Write-Host "[+] Running script..."
+Write-Host "[+] Running script (DEBUG MODE)..."
+Write-Host "-----------------------------------"
 
-# 💀 THIS is the fix that actually makes it run
-& $python.Source -u $pyFile
+# 💀 KEY FIX: run inside same terminal so errors DON'T vanish
+try {
+    & $python.Source -u $pyFile
+} catch {
+    Write-Host "[-] PYTHON CRASHED:" -ForegroundColor Red
+    Write-Host $_
+}
 
-Write-Host "[+] Done"
+Write-Host "-----------------------------------"
+Write-Host "[+] Script ended"
 pause
