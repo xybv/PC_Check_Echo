@@ -1,37 +1,39 @@
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 $folder = Join-Path $env:LOCALAPPDATA "PC_Check_Echo"
-
 $baseUrl = "https://raw.githubusercontent.com/xybv/PC_Check_Echo/refs/heads/main"
 
-$pyUrl  = "$baseUrl/echo.py"
-$reqUrl = "$baseUrl/requirements.txt"
-
-$pyFile  = Join-Path $folder "echo.py"
+$pyFile = Join-Path $folder "echo.py"
 $reqFile = Join-Path $folder "requirements.txt"
 
-# Create folder
 New-Item -ItemType Directory -Force -Path $folder | Out-Null
 
 Write-Host "[+] Downloading files..."
 
-Invoke-WebRequest -Uri $pyUrl -OutFile $pyFile
-Invoke-WebRequest -Uri $reqUrl -OutFile $reqFile
+Invoke-WebRequest "$baseUrl/echo.py" -OutFile $pyFile
+Invoke-WebRequest "$baseUrl/requirements.txt" -OutFile $reqFile
 
-# Check Python
+Write-Host "[+] Finding Python..."
+
 $python = Get-Command python -ErrorAction SilentlyContinue
+if (-not $python) { $python = Get-Command py -ErrorAction SilentlyContinue }
 
 if (-not $python) {
-    Write-Host "[-] Python not found. Install Python and add to PATH." -ForegroundColor Red
-    exit 1
+    Write-Host "[-] Python not found (install it first)" -ForegroundColor Red
+    pause
+    exit
 }
 
-Write-Host "[+] Upgrading pip..."
-& python -m pip install --upgrade pip --quiet
+Write-Host "[+] Using: $($python.Source)"
 
 Write-Host "[+] Installing requirements..."
-& python -m pip install --no-cache-dir -r $reqFile
+& $python.Source -m pip install --upgrade pip
+& $python.Source -m pip install -r $reqFile
 
 Write-Host "[+] Running script..."
 
-Start-Process -FilePath $python.Source -ArgumentList "`"$pyFile`"" -WorkingDirectory $folder -Wait
+# 💀 THIS is the fix that actually makes it run
+& $python.Source -u $pyFile
+
+Write-Host "[+] Done"
+pause
