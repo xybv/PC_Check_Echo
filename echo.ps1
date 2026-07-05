@@ -1,17 +1,10 @@
 $ErrorActionPreference = "Continue"
 
-$folder = Join-Path $env:LOCALAPPDATA "PC_Check_Echo"
-$baseUrl = "https://raw.githubusercontent.com/xybv/PC_Check_Echo/refs/heads/main"
+Write-Host "[+] Downloading script..."
 
-$pyFile = Join-Path $folder "echo.py"
-$reqFile = Join-Path $folder "requirements.txt"
+$pyFile = Join-Path $env:TEMP "echo.py"
 
-New-Item -ItemType Directory -Force -Path $folder | Out-Null
-
-Write-Host "[+] Downloading files..."
-
-Invoke-WebRequest "$baseUrl/echo.py" -OutFile $pyFile
-Invoke-WebRequest "$baseUrl/requirements.txt" -OutFile $reqFile
+Invoke-WebRequest "https://raw.githubusercontent.com/xybv/PC_Check_Echo/refs/heads/main/echo.py" -OutFile $pyFile
 
 Write-Host "[+] Checking Python..."
 
@@ -19,28 +12,21 @@ $python = Get-Command python -ErrorAction SilentlyContinue
 if (-not $python) { $python = Get-Command py -ErrorAction SilentlyContinue }
 
 if (-not $python) {
-    Write-Host "[-] Python not found" -ForegroundColor Red
+    Write-Host "[-] Python not found on this system" -ForegroundColor Red
     pause
     exit
 }
 
-Write-Host "[+] Using: $($python.Source)"
+Write-Host "[+] Running script..."
+Write-Host "-----------------------------"
 
-Write-Host "[+] Installing requirements..."
-& $python.Source -m pip install --upgrade pip
-& $python.Source -m pip install -r $reqFile
-
-Write-Host "[+] Running script (DEBUG MODE)..."
-Write-Host "-----------------------------------"
-
-# 💀 KEY FIX: run inside same terminal so errors DON'T vanish
 try {
-    & $python.Source -u $pyFile
+    & $python.Source $pyFile
 } catch {
-    Write-Host "[-] PYTHON CRASHED:" -ForegroundColor Red
+    Write-Host "[-] ERROR WHILE RUNNING PYTHON:" -ForegroundColor Red
     Write-Host $_
 }
 
-Write-Host "-----------------------------------"
-Write-Host "[+] Script ended"
+Write-Host "-----------------------------"
+Write-Host "[+] Done"
 pause
